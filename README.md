@@ -14,7 +14,6 @@ resource_types:
 resources:
 - name: file-repository
   type: artifactory
-  check_every: 1m
   source:
     endpoint: http://ARTIFACTORY-HOST-NAME-GOES-HERE:8081/artifactory
     repository: "/repository-name/sub-folder"
@@ -26,8 +25,8 @@ resources:
 
 ## Source Configuration
 
-* `endpoint`: *Required.* The artifactory REST API endpoint. eg. http://YOUR-HOST_NAME:8081/artifactory.  
-* `repository`: *Required.* The artifactory repository which includes any folder path, must start with leading '/'. ```eg. /generic/product/pcf```  
+* `endpoint`: *Required.* The Artifactory REST API endpoint. eg. http://YOUR-HOST_NAME:8081/artifactory.  
+* `repository`: *Required.* The Artifactory repository which includes any folder path, must contain a leading '/'. ```eg. /generic/product/pcf```  
 * `regex`: *Required.* Regular expression used to extract artifact version, must contain 'version' group. ```E.g. myapp-(?<version>.*).tar.gz```  
 * `username`: *Optional.* Username for HTTP(S) auth when accessing an authenticated repository  
 * `password`: *Optional.* Password for HTTP(S) auth when accessing an authenticated repository  
@@ -39,7 +38,7 @@ resources:
 * `regex`: *Optional* overrides the source regex  
 * `folder`: *Optional.* appended to the repository in source - must start with forward slash /  
 
-Saving/deploying an artifact to Artifactory in a pipeline job using the ```put``` action:  
+Saving/deploying an artifact to Artifactory in a pipeline job:  
 
 ``` yaml
   jobs:
@@ -52,7 +51,6 @@ Saving/deploying an artifact to Artifactory in a pipeline job using the ```put``
           type: docker-image
           source:
             repository: ubuntu
-            tag: "latest"
         outputs:
         - name: build
         run:
@@ -72,8 +70,6 @@ Retrieving an artifact from Artifactory in a pipeline job:
 ``` yaml
 jobs:
 - name: trigger-when-new-file-is-added-to-artifactory
-  serial: true
-  public: true
   plan:
   - get: file-repository
     trigger: true
@@ -84,7 +80,6 @@ jobs:
         type: docker-image
         source:
           repository: ubuntu
-          tag: "latest"
       inputs:
       - name: file-repository
       run:
@@ -93,7 +88,7 @@ jobs:
         - "Use file(s) from ./file-repository here..."
 ```
 
-See [pipeline.yml](https://raw.githubusercontent.com/pivotalservices/artifactory-resource/master/pipeline.yml) for full pipeline definition file example.  
+See [pipeline.yml](https://github.com/pivotalservices/artifactory-resource/blob/master/pipeline.yml) for an example of a full pipeline definition file.  
 
 ## Resource behavior
 
@@ -116,4 +111,4 @@ Deploys the artifact.
 * `file`: *Required.* The path to the artifact to deploy.
 
 ## Credits
-This concourse resource was originally based on the artifactory resource work of [mborges](https://github.com/mborges-pivotal/artifactory-resource).
+This resource was originally based on the artifactory resource work of [mborges](https://github.com/mborges-pivotal/artifactory-resource).
