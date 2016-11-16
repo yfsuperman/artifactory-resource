@@ -11,8 +11,8 @@ applyRegex_version() {
 }
 
 # retrieve current from artifactory
-# e.g url=http://localhost:8081/artifactory/api/storage/UrbanActive/Products/Maven/admin
-#     regex=carshare-(admin|api|customer)-(?<version>.*).tar.gz
+# e.g url=http://your-host-goes-here:8081/artifactory/api/storage/your-path-goes-here
+#     regex=ecd-front-(?<version>.*).tar.gz
 artifactory_current_version() {
   local artifacts_url=$1
   local regex=$2
@@ -22,8 +22,6 @@ artifactory_current_version() {
 }
 
 # Return all versions
-# e.g url=http://localhost:8081/artifactory/api/storage/UrbanActive/Products/Maven/admin
-#     regex=carshare-(admin|api|customer)-(?<version>.*).tar.gz
 artifactory_versions() {
   local artifacts_url=$1
   local regex=$2
@@ -33,8 +31,6 @@ artifactory_versions() {
 }
 
 # return uri and version of all files
-# e.g url=http://localhost:8081/artifactory/api/storage/UrbanActive/Products/Maven/admin
-#     regex=carshare-(admin|api|customer)-(?<version>.*).tar.gz
 artifactory_files() {
   local artifacts_url=$1
   local regex="(?<uri>$2)"
@@ -55,7 +51,6 @@ in_file_with_version() {
 
 
 # return the list of versions from provided version
-#     version=1.0.0.2
 check_version() {
   local artifacts_url=$1
   local regex=$2

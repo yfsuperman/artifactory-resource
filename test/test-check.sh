@@ -1,5 +1,13 @@
 #!/bin/bash
 
+# before running these tests, set the following env vars:
+# export ART_IP=<ip-or-domain-of-artifactory-server>
+# export ART_USER=<artifactory-username>
+# export ART_PWD=<artifactory-password>
+# sample curl commands for artifactory API
+# curl -u $ART_USER:$ART_PWD -X PUT "http://host:8081/artifactory/path-to-file" -T ./local-path-to-file
+# Artifactory docker image: https://www.jfrog.com/confluence/display/RTF/Running+with+Docker
+
 set -e
 
 source $(dirname $0)/helpers.sh

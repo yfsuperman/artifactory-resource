@@ -16,14 +16,10 @@ fi
 
 cd $source
 
-# for jq
-PATH=/usr/local/bin:$PATH
-
 payload=$(mktemp $TMPDIR/artifactory-resource-request.XXXXXX)
 
 cat > $payload <&0
 
-# MMB: debug log?
 cat $payload
 
 endpoint=$(jq -r '.source.endpoint // ""' < $payload)
@@ -69,8 +65,6 @@ if [ -n "$paramRegex" ]; then
   regex=$paramRegex
 fi
 
-# curl -u mborges:pivotal -X PUT "http://localhost:8081/artifactory/maven-carshare-local/carshare-customer-1.0.0.2.tar.gz" -T ./carshare-customer-1.0.0.2.tar.gz
-
 final_url=$(echo "$args_security" " $args_url")
 echo $final_url
 
@@ -85,8 +79,6 @@ fi
 args_url="$endpoint$repository/$file"
 
 echo $args_security "-O" "$args_url"
-#$(curl "$args_security" "-O" "$args_url")
 curl $args_security "-O" "$args_url"
 
 echo $file_json | jq '.[].version | {version: {version: .}}' >&3
-#in_file_with_version $final_url $regex $version >&3

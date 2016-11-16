@@ -8,7 +8,7 @@ applyRegex() {
   if [[ $file =~ $regex ]];
     then
         version="${BASH_REMATCH[1]}"
-        echo "${version}" 
+        echo "${version}"
     else
         echo "$file doesn't match" >&2 # this could get noisy if there are a lot of non-matching files
         exit 1
@@ -16,9 +16,7 @@ applyRegex() {
     echo "${version}"
 }
 
-# Use jq regex since it support grouping
-# "carshare-(?<module>admin|api|customer)-(?<version>.*).tar.gz" 
-# "carshare-api-1.0.0-rc.0.tar.gz"
+# Use jq regex since it supports grouping
 applyRegex_version() {
   local regex=$1
   local file=$2
@@ -30,8 +28,6 @@ applyRegex_version() {
 }
 
 # retrieve all versions from artifactory
-# e.g url=http://localhost:8081/artifactory/api/storage/UrbanActive/Products/Maven/admin
-#     regex=carshare-(admin|api|customer)-(?<version>.*).tar.gz
 artifactory_artifacts() {
   local artifacts_url=$1
   local regex=$2
@@ -41,8 +37,6 @@ artifactory_artifacts() {
 }
 
 # retrieve current from artifactory
-# e.g url=http://localhost:8081/artifactory/api/storage/UrbanActive/Products/Maven/admin
-#     regex=carshare-(admin|api|customer)-(?<version>.*).tar.gz
 artifactory_current_version() {
   local artifacts_url=$1
   local regex=$2
@@ -52,9 +46,6 @@ artifactory_current_version() {
 }
 
 # check provided version returning all version
-# e.g url=http://localhost:8081/artifactory/api/storage/UrbanActive/Products/Maven/admin
-#     regex=carshare-(admin|api|customer)-(?<version>.*).tar.gz
-#     version=1.0.0.2
 artifactory_versions() {
   local artifacts_url=$1
   local regex=$2
@@ -74,9 +65,6 @@ check_version() {
 }
 
 # check provided version returning all version
-# e.g url=http://localhost:8081/artifactory/api/storage/UrbanActive/Products/Maven/admin
-#     regex=carshare-(admin|api|customer)-(?<version>.*).tar.gz
-#     version=1.0.0.2
 artifactory_files() {
   local artifacts_url=$1
   local regex="(?<uri>$2)"
@@ -106,15 +94,10 @@ check_file_with_version() {
 }
 
 
-# curl http://localhost:8081/artifactory/api/storage/UrbanActive/Products/Maven/admin | 
-# jq '.children[].uri | capture("carshare-admin-(?<version>.*).tar.gz")'
-# jq '[.children[].uri | capture("carshare-admin-(?<version>.*).tar.gz")]'
-
-#result=$(applyRegex "(?P<file>carshare-(?:api|customer|admin)-(?P<version>.*).tar.gz)" "carshare-admin-1.0.0-rc.0.tar.gz")
 version=$(applyRegex_version "carshare-(?<module>admin|api|customer)-(?<version>.*).tar.gz" "carshare-api-1.0.0-rc.0.tar.gz")
 echo "version -> $version"
 
-url=http://localhost:8081/artifactory/api/storage/UrbanActive/Products/Maven/admin 
+url=http://localhost:8081/artifactory/api/storage/UrbanActive/Products/Maven/admin
 echo "Testing retrieving artifactis with version group"
 echo $(artifactory_artifacts "$url" "carshare-(admin|api|customer)-(?<version>.*).tar.gz")
 
@@ -144,8 +127,3 @@ echo $result
 echo "############### Testing check by version output function"
 url="-u admin:password http://192.168.1.224:8081/artifactory/api/storage/libs-snapshot-local/Pivotal"
 echo $(check_version "$url" "carshare-(admin|api|customer)-(?<version>.*).tar.gz" "1.0.0.2")
-
-
-#echo '[ { "version": "1.1.0-rc.0" }, { "version": "1.0.0.2" } ]' | jq 'sort_by(.version)'
-
-
