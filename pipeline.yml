@@ -1,54 +1,69 @@
-## JOBS
-
----
-jobs:
-- name: build
-  plan:
-  - get: artifactory
-    resource: artifactory-release
-  - task: promote
-    config: 
-      platform: linux
-      image_resource:
-        type: docker-image
-        source: {repository: ubuntu}
-      inputs:
-      - name: artifactory
-      outputs:
-      - name: build-output
-      run:
-        path: mv
-        args: [./artifactory/pivotal-1.0.1-rc1.tar.gz, ./build-output]
-  - put: artifactory-snapshot
-    params: 
-      file: build-output/pivotal-*.tar.gz
-
-
-## RESOURCE TYPES
-
 resource_types:
 - name: artifactory
   type: docker-image
   source:
-    repository: mborges/artifactory-resource
-
-## RESOURCES
+    repository: pivotalservices/artifactory-resource
 
 resources:
-- name: artifactory-release
+- name: file-repository
   type: artifactory
+  check_every: 1m
   source:
-    endpoint: http://192.168.1.224:8081/artifactory
-    repository: "/libs-release-local"
-    regex: "pivotal-(?<version>.*).tar.gz"
+    endpoint: http://ARTIFACTORY-HOST-NAME-GOES-HERE:8081/artifactory
+    repository: "/repository-name/sub-folder"
+    regex: "myapp-(?<version>.*).txt"
+    username: YOUR-ARTIFACTORY-USERNAME
+    password: YOUR-ARTIFACTORY-PASSWORD
 
-- name: artifactory-snapshot
-  type: artifactory
-  source:
-    endpoint: http://192.168.1.224:8081/artifactory
-    repository: "/libs-snapshot-local/Pivotal"
-    regex: "pivotal-(?<version>.*).tar.gz"
-    username: admin
-    password: password
+jobs:
+- name: build-and-save-to-artifactory
+  serial: true
+  public: true
+  plan:
+  - task: build-file
+    config:
+      platform: linux
+      image_resource:
+        type: docker-image
+        source:
+          repository: ubuntu
+          tag: "latest"
+      outputs:
+      - name: build
+      run:
+        path: sh
+        args:
+        - -exc
+        - |
+          export DATESTRING=$(date +"%Y%m%d")
+          echo "This is my file" > ./build/myapp-$(date +"%Y%m%d%H%S").txt
+          find .
+  - put: file-repository
+    params: { file: ./build/myapp-*.txt }
 
-
+- name: trigger-when-new-file-is-added-to-artifactory
+  serial: true
+  public: true
+  plan:
+  - get: file-repository
+    trigger: true
+    passed:
+      - build-and-save-to-artifactory
+  - task: use-new-file
+    config:
+      platform: linux
+      image_resource:
+        type: docker-image
+        source:
+          repository: ubuntu
+          tag: "latest"
+      inputs:
+      - name: file-repository
+      run:
+        path: sh
+        args:
+        - -exc
+        - |
+          export DATESTRING=$(date +"%Y%m%d")
+          ls -la file-repository
+          cat ./file-repository/myapp*.txt

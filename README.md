@@ -1,54 +1,101 @@
 # Artifactory Resource
 
-Deploys and retrieve artifacts from artifactory.
+Deploys and retrieves artifacts from a JFrog Artifactory server for a Concourse pipeline.
+
+To define an Artifactory resource for a Concourse pipeline:
+
+``` yaml
+resource_types:
+- name: artifactory
+  type: docker-image
+  source:
+    repository: pivotalservices/artifactory-resource
+
+resources:
+- name: file-repository
+  type: artifactory
+  check_every: 1m
+  source:
+    endpoint: http://ARTIFACTORY-HOST-NAME-GOES-HERE:8081/artifactory
+    repository: "/repository-name/sub-folder"
+    regex: "myapp-(?<version>.*).txt"
+    username: YOUR-ARTIFACTORY-USERNAME
+    password: YOUR-ARTIFACTORY-PASSWORD
+    skip_ssl_verification: true
+```
 
 ## Source Configuration
 
 * `endpoint`: *Required.* The artifactory REST API endpoint. eg. http://YOUR-HOST_NAME:8081/artifactory.  
-* `repository`: *Required.* The artifactory repository which includes any folder path, must start with leading '/'. eg. /generic/product/pcf  
+* `repository`: *Required.* The artifactory repository which includes any folder path, must start with leading '/'. ```eg. /generic/product/pcf```  
 * `regex`: *Required.* Regular expression used to extract artifact version, must contain 'version' group. ```E.g. myapp-(?<version>.*).tar.gz```  
 * `username`: *Optional.* Username for HTTP(S) auth when accessing an authenticated repository  
 * `password`: *Optional.* Password for HTTP(S) auth when accessing an authenticated repository  
+* `skip_ssl_verification`: *Optional.* Skip ssl verification when connecting to Artifactory's APIs. Values: ```true``` or ```false```(default).  
 
 ## Parameter Configuration
 
-* `file`: *Required for put* The file to upload to artifactory  
-* `regex`: *Optional* overwrites the source regex  
+* `file`: *Required for put* The file to upload to Artifactory  
+* `regex`: *Optional* overrides the source regex  
 * `folder`: *Optional.* appended to the repository in source - must start with forward slash /  
 
-Resource configuration for an authenticated repository:
+Saving/deploying an artifact to Artifactory in a pipeline job using the ```put``` action:  
 
 ``` yaml
-resources:
-- name: artifactory
-  type: artifactory
-  source:
-    endpoint: http://YOUR-ARTIFACTORY-HOSTNAME:8081/artifactory
-    repository: "/builds/golden/myapp"
-    regex: "myapp-(?<version>.*).tar.gz"
+  jobs:
+  - name: build-and-save-to-artifactory
+    plan:
+    - task: build-a-file
+      config:
+        platform: linux
+        image_resource:
+          type: docker-image
+          source:
+            repository: ubuntu
+            tag: "latest"
+        outputs:
+        - name: build
+        run:
+          path: sh
+          args:
+          - -exc
+          - |
+            export DATESTRING=$(date +"%Y%m%d")
+            echo "This is my file" > ./build/myapp-$(date +"%Y%m%d%H%S").txt
+            find .
+    - put: file-repository
+      params: { file: ./build/myapp-*.txt }
 ```
 
-Deploying an artifact build by Maven
+Retrieving an artifact from Artifactory in a pipeline job:  
 
 ``` yaml
 jobs:
-- name: build
+- name: trigger-when-new-file-is-added-to-artifactory
+  serial: true
+  public: true
   plan:
-  - get: source-code
+  - get: file-repository
     trigger: true
-  - get: version
-    params: { pre: rc }
-  - task: build
-    file: source-code/ci/build.yml
-  - put: milestone
-    resource: artifactory
-    params:
-      file: build-output/myartifact-*.jar
-  - put: version
-    params: { file: version/number }
+  - task: use-new-file
+    config:
+      platform: linux
+      image_resource:
+        type: docker-image
+        source:
+          repository: ubuntu
+          tag: "latest"
+      inputs:
+      - name: file-repository
+      run:
+        path: echo
+        args:
+        - "Use file(s) from ./file-repository here..."
 ```
 
-## Behavior
+See [pipeline.yml](https://raw.githubusercontent.com/pivotalservices/artifactory-resource/master/pipeline.yml) for full pipeline definition file example.  
+
+## Resource behavior
 
 ### `check`: ...
 
