@@ -30,6 +30,7 @@ endpoint=$(jq -r '.source.endpoint // ""' < $payload)
 regex=$(jq -r '.source.regex // ""' < $payload)
 username=$(jq -r '.source.username // ""' < $payload)
 password=$(jq -r '.source.password // ""' < $payload)
+skip_ssl_verification=$(jq -r '.source.skip_ssl_verification // ""' < $payload)
 
 repository=$(jq -r '.source.repository // ""' < $payload)
 folder=$(jq -r '.params.folder // ""' < $payload)
@@ -58,7 +59,7 @@ filename=$(basename "$abs_file")
 args_url="$endpoint"
 args_url="$args_url$repository"
 
-if [ -n "$folder" ]; then 
+if [ -n "$folder" ]; then
 	echo "adding parameter folder"
 	args_url="$args_url/$folder"
 fi
@@ -69,8 +70,10 @@ args_security=
 
 [ -n "$username" ] && args_security="-u $username";
 [ -n "$password" ] && args_security="$args_security:$password";
+trueValue="true"
+[ -n "$skip_ssl_verification" ] && [ "${skip_ssl_verification,,}" = "${trueValue,,}" ] && args_security="$args_security -k";
 
-# curl -u mborges:pivotal -X PUT "http://localhost:8081/artifactory/maven-carshare-local/carshare-customer-1.0.0.2.tar.gz" -T ./carshare-customer-1.0.0.2.tar.gz 
+# curl -u mborges:pivotal -X PUT "http://localhost:8081/artifactory/maven-carshare-local/carshare-customer-1.0.0.2.tar.gz" -T ./carshare-customer-1.0.0.2.tar.gz
 # curl -u admin:password -T build-output/pivotal-1.0.1-rc1.tar.gz http://192.168.1.224:8081/artifactory/libs-snapshot-local/Pivotal/pivotal-1.0.1-rc1.tar.gz
 
 echo "########## $filename, $file"

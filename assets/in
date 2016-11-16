@@ -30,6 +30,7 @@ endpoint=$(jq -r '.source.endpoint // ""' < $payload)
 regex=$(jq -r '.source.regex // ""' < $payload)
 username=$(jq -r '.source.username // ""' < $payload)
 password=$(jq -r '.source.password // ""' < $payload)
+skip_ssl_verification=$(jq -r '.source.skip_ssl_verification // ""' < $payload)
 
 repository=$(jq -r '.source.repository // ""' < $payload)
 file=$(jq -r '.params.file // ""' < $payload)
@@ -60,13 +61,15 @@ args_security=
 
 [ -n "$username" ] && args_security="-u $username";
 [ -n "$password" ] && args_security="$args_security:$password";
+trueValue="true"
+[ -n "$skip_ssl_verification" ] && [ "${skip_ssl_verification,,}" = "${trueValue,,}" ] && args_security="$args_security -k";
 
 if [ -n "$paramRegex" ]; then
   echo "overwriting source regex"
   regex=$paramRegex
-fi 
+fi
 
-# curl -u mborges:pivotal -X PUT "http://localhost:8081/artifactory/maven-carshare-local/carshare-customer-1.0.0.2.tar.gz" -T ./carshare-customer-1.0.0.2.tar.gz 
+# curl -u mborges:pivotal -X PUT "http://localhost:8081/artifactory/maven-carshare-local/carshare-customer-1.0.0.2.tar.gz" -T ./carshare-customer-1.0.0.2.tar.gz
 
 final_url=$(echo "$args_security" " $args_url")
 echo $final_url
@@ -87,5 +90,3 @@ curl $args_security "-O" "$args_url"
 
 echo $file_json | jq '.[].version | {version: {version: .}}' >&3
 #in_file_with_version $final_url $regex $version >&3
-
-
