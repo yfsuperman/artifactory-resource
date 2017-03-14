@@ -7,6 +7,7 @@
 # sample curl commands for artifactory API
 # curl -u $ART_USER:$ART_PWD -X PUT "http://host:8081/artifactory/path-to-file" -T ./local-path-to-file
 # Artifactory docker image: https://www.jfrog.com/confluence/display/RTF/Running+with+Docker
+# curl -u admin:password http://192.168.99.100:8081/artifactory/api/storage/ext-release-local
 
 set -e
 

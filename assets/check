@@ -11,8 +11,6 @@ payload=$(mktemp $TMPDIR/artifactory-resource-request.XXXXXX)
 
 cat > $payload <&0
 
-cat $payload
-
 endpoint=$(jq -r '.source.endpoint // ""' < $payload)
 regex=$(jq -r '.source.regex // ""' < $payload)
 username=$(jq -r '.source.username // ""' < $payload)
