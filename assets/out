@@ -67,13 +67,13 @@ args_security=
 trueValue="true"
 [ -n "$skip_ssl_verification" ] && [ "${skip_ssl_verification,,}" = "${trueValue,,}" ] && args_security="$args_security -k";
 
-echo "########## $filename, $file"
+# echo "########## $filename, $file"
 
-echo $args_security "-T $abs_file $args_url "
+# echo $args_security "-T $abs_file $args_url "
 curl $args_security "-T$abs_file" "$args_url"
 
 
-echo $file $regex
+# echo $file $regex
 version=$(applyRegex_version $regex $filename)
 
 jq -n "{

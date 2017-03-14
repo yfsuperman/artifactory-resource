@@ -64,7 +64,7 @@ if [ -n "$paramRegex" ]; then
 fi
 
 final_url=$(echo "$args_security" " $args_url")
-echo $final_url
+# echo $final_url
 
 file_json=$(in_file_with_version "$final_url" "$regex" "$version")
 file=$(echo $file_json | jq -r '.[].uri')
@@ -76,7 +76,7 @@ fi
 
 args_url="$endpoint$repository/$file"
 
-echo $args_security "-O" "$args_url"
+# echo $args_security "-O" "$args_url"
 curl $args_security "-O" "$args_url"
 
 echo $file_json | jq '.[].version | {version: {version: .}}' >&3
