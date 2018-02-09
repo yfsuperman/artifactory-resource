@@ -98,10 +98,10 @@ version=$(applyRegex_version "carshare-(?<module>admin|api|customer)-(?<version>
 echo "version -> $version"
 
 url=http://localhost:8081/artifactory/api/storage/UrbanActive/Products/Maven/admin
-echo "Testing retrieving artifactis with version group"
+echo "Testing retrieving artifacts with version group"
 echo $(artifactory_artifacts "$url" "carshare-(admin|api|customer)-(?<version>.*).tar.gz")
 
-echo "Testing retrieving artifactis with module and version group"
+echo "Testing retrieving artifacts with module and version group"
 echo $(artifactory_artifacts "$url" "carshare-(?<module>admin|api|customer)-(?<version>.*).tar.gz")
 
 echo "Testing retrieving current version"
