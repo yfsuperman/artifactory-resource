@@ -1,0 +1,27 @@
+{
+  "repo" : "testrepo",
+  "path" : "/",
+  "created" : "2018-02-09T19:55:45.216Z",
+  "lastModified" : "2018-02-09T19:55:45.216Z",
+  "lastUpdated" : "2018-02-09T19:55:45.216Z",
+  "children" : [ {
+    "uri" : "/go_v1.0.0.yml",
+    "folder" : false
+  }, {
+    "uri" : "/go_v1.0.2.yml",
+    "folder" : false
+  }, {
+    "uri" : "/bosh_v1.4.0.yml",
+    "folder" : false
+  }, {
+    "uri" : "/bosh_v1.15.0.yml",
+    "folder" : false
+  }, {
+    "uri" : "/myapp-201802092010.txt",
+    "folder" : false
+  }, {
+    "uri" : "/myapp-201802092050.txt",
+    "folder" : false
+  } ],
+  "uri" : "http://192.168.99.100:8081/artifactory/api/storage/testrepo"
+}
